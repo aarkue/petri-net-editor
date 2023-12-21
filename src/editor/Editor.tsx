@@ -6,6 +6,7 @@ import ReactFlow, {
   NodeOrigin,
   OnConnectEnd,
   OnConnectStart,
+  Panel,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
@@ -18,6 +19,9 @@ import CustomEdge from "./CustomEdge";
 import PlaceNode from "./PlaceNode";
 import { useRef, useCallback } from "react";
 import type { Connection, Edge, Node } from "reactflow";
+import DownloadButton from "./helpers/download-image-button";
+import ImportPNMLButton from "./helpers/import-pnml-button";
+import { useLayoutedElements } from "./helpers/Layout";
 const nodeTypes = {
   transition: TransitionNode,
   place: PlaceNode,
@@ -50,6 +54,8 @@ function InnerEditor() {
 
   const connectingNodeId = useRef<string | null>(null);
 
+  const { getLayoutedElements } = useLayoutedElements();
+
   // const { getLayoutedElements } = useLayoutedElements();
 
   const onConnectStart: OnConnectStart = useCallback((_, { nodeId }) => {
@@ -76,12 +82,13 @@ function InnerEditor() {
           position: childNodePosition,
         };
 
-        const newEdge = {
+        const newEdge: Edge<any> = {
           id: Date.now().toString(),
           source: parentNode.id,
           target: newNode.id,
           type: "custom",
           markerEnd: {
+            color: "black",
             type: MarkerType.ArrowClosed,
             width: 25,
             height: 25,
@@ -117,6 +124,7 @@ function InnerEditor() {
             target: h === sourceNode.type ? target! : source!,
             type: "custom",
             markerEnd: {
+              color: "black",
               type: MarkerType.ArrowClosed,
               width: 25,
               height: 25,
@@ -145,6 +153,8 @@ function InnerEditor() {
       onConnect={onConnect}
       snapToGrid={true}
       snapGrid={[10, 10]}
+      maxZoom={10}
+      minZoom={0.33}
       proOptions={{ hideAttribution: true }}
     >
       <Background
@@ -154,15 +164,23 @@ function InnerEditor() {
         offset={2}
       />
       <Controls showInteractive={false} />
-      {/* <Panel position="top-right" className="flex gap-x-2">
+      <Panel
+        position="top-right"
+        style={{ display: "flex", flexDirection: "row", gap: "5px" }}
+      >
+        <DownloadButton />
+        <ImportPNMLButton />
         <button
           onClick={() => {
-            getLayoutedElements({ "elk.algorithm": "org.eclipse.elk.force" }, true);
+            getLayoutedElements(
+              { "elk.algorithm": "org.eclipse.elk.layered" },
+              true,
+            );
           }}
         >
           Layout
         </button>
-      </Panel> */}
+      </Panel>
     </ReactFlow>
   );
 }
