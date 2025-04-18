@@ -4,9 +4,10 @@ import DeleteButton from "./DeleteButton";
 
 export type NodeData = {
   label: string | undefined;
+  tokens?: number,
 };
 
-export default function TransitionNode({ data, id }: NodeProps<NodeData>) {
+export default function TransitionNode({ data, id, selected }: NodeProps<NodeData>) {
   const { setNodes } = useReactFlow();
   const [editMode, setEditMode] = useState(false);
   const [invisible, setInvisible] = useState(
@@ -38,7 +39,7 @@ export default function TransitionNode({ data, id }: NodeProps<NodeData>) {
     <>
       <div
         title={data.label ?? "Invisible"}
-        className="transition-node"
+        className={`node transition-node ${selected ? "selected" : ""}`}
         style={{
           backgroundColor: invisible ? "black" : undefined,
         }}
@@ -102,6 +103,8 @@ export default function TransitionNode({ data, id }: NodeProps<NodeData>) {
               textAlign: "center",
               zIndex: 10,
               position: "relative",
+              fontWeight: 500,
+              fontSize: Math.min(Math.max(300/(data.label?.length ?? 1),8), 14) +"px",
             }}
           >
             {data.label}

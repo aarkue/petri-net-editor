@@ -15,6 +15,10 @@ export default function DeleteButton(props: DeleteButtonProps) {
             const newNodes = ns.filter((n) => n.id !== props.nodeID);
             return newNodes;
           });
+          setEdges((es) => {
+            const newEdges = es.filter((e) => e.source !== props.nodeID && e.target !== props.nodeID);
+            return newEdges;
+          })
         } else {
           setEdges((es) => {
             const newEdges = es.filter((n) => n.id !== props.edgeID);

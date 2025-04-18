@@ -1,6 +1,7 @@
 import ReactFlow, {
   Background,
   BackgroundVariant,
+  ConnectionLineType,
   Controls,
   MarkerType,
   NodeOrigin,
@@ -22,6 +23,7 @@ import type { Connection, Edge, Node } from "reactflow";
 import DownloadButton from "./helpers/download-image-button";
 import ImportPNMLButton from "./helpers/import-pnml-button";
 import { useLayoutedElements } from "./helpers/Layout";
+import "./editor.css";
 const nodeTypes = {
   transition: TransitionNode,
   place: PlaceNode,
@@ -90,8 +92,8 @@ function InnerEditor() {
           markerEnd: {
             color: "black",
             type: MarkerType.ArrowClosed,
-            width: 25,
-            height: 25,
+            width: 16,
+            height: 16,
           },
         };
         setNodes([...nodes, newNode]);
@@ -126,8 +128,8 @@ function InnerEditor() {
             markerEnd: {
               color: "black",
               type: MarkerType.ArrowClosed,
-              width: 25,
-              height: 25,
+              width: 16,
+              height: 16,
             },
           };
           newEds.push(newEdge);
@@ -140,7 +142,7 @@ function InnerEditor() {
 
   const nodeOrigin: NodeOrigin = [0.5, 0.5];
   return (
-    <ReactFlow
+    <ReactFlow className="petri-net-editor"
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
@@ -150,7 +152,9 @@ function InnerEditor() {
       nodeOrigin={nodeOrigin}
       onConnectStart={onConnectStart}
       onConnectEnd={onConnectEnd}
+      connectionLineStyle={{strokeWidth: 1.5}}
       onConnect={onConnect}
+      connectionLineType={ConnectionLineType.Straight}
       snapToGrid={true}
       snapGrid={[10, 10]}
       maxZoom={10}

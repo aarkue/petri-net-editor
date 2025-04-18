@@ -33,7 +33,13 @@ function ImportPNMLButton() {
           "$invisible$";
         const name = getNameText(tEl);
         if (!name) {
-          return undefined;
+          return {
+            id: transitionID ?? name,
+            position: { x: 0, y: 0 },
+            type: "transition",
+            data: { label: isSilent ? undefined : name },
+          }
+          // return undefined;
         }
         return {
           id: transitionID ?? name,
@@ -59,7 +65,7 @@ function ImportPNMLButton() {
           id: placeID ?? name,
           position: { x: 0, y: 0 },
           type: "place",
-          data: { label: name },
+          data: { label: name, tokens: parseInt(pEl.querySelector("initialMarking>text")?.textContent ?? "0") },
         } satisfies Node<NodeData>;
       })
       .filter((t): t is Node<any> & { type: "place" } => t !== undefined);
@@ -82,8 +88,8 @@ function ImportPNMLButton() {
           markerEnd: {
             color: "black",
             type: MarkerType.ArrowClosed,
-            width: 25,
-            height: 25,
+            width: 16,
+            height: 16,
           },
         } satisfies Edge<any>;
       })

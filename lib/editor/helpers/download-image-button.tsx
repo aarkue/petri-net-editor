@@ -4,7 +4,7 @@ import { getNodesBounds, getViewportForBounds, useReactFlow } from "reactflow";
 function downloadImage(dataUrl: string) {
   const a = document.createElement("a");
 
-  a.setAttribute("download", "hallo.png");
+  a.setAttribute("download", "petri-net.png");
   a.setAttribute("href", dataUrl);
   a.click();
 }

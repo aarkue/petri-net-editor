@@ -1,3 +1,4 @@
 # Petri Net Editor
 
-Written in Typescript and React.
+This package is a simple Petri net editor implemented in React and Typescript using [React Flow](https://github.com/xyflow/xyflow).
+

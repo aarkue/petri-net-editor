@@ -36,11 +36,11 @@ export default function CustomEdge(props: EdgeProps) {
   if (edgeType === "straight") {
     const interP =
       targetType === "transition"
-        ? getIntersectionRect(sourceX, sourceY, targetX, targetY, 130, 64)
+        ? getIntersectionRect(sourceX, sourceY, targetX, targetY, 130, 67)
         : getIntersectionCirc(sourceX, sourceY, targetX, targetY, 66);
     const interS =
       sourceType === "transition"
-        ? getIntersectionRect(targetX, targetY, sourceX, sourceY, 120, 64)
+        ? getIntersectionRect(targetX, targetY, sourceX, sourceY, 125, 67)
         : getIntersectionCirc(targetX, targetY, sourceX, sourceY, 66);
     [edgePath, labelX, labelY] = getStraightPath({
       sourceX: (interS ?? source.position).x,
@@ -99,7 +99,7 @@ export default function CustomEdge(props: EdgeProps) {
 
   return (
     <>
-      <BaseEdge path={edgePath} {...props} style={{ stroke: "black" }} />;
+      <BaseEdge path={edgePath} {...props} style={{ stroke: "black", strokeWidth: "2" }} />;
       <EdgeLabelRenderer>
         <div
           style={{
@@ -109,7 +109,7 @@ export default function CustomEdge(props: EdgeProps) {
             width: "0.75rem",
             height: "0.75rem",
           }}
-          className="edge"
+          className={`edge ${props.selected ? "selected" : ""}`}
         >
           <DeleteButton edgeID={props.id} />
         </div>
