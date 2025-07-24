@@ -1,5 +1,6 @@
-import { useReactFlow, Node, Edge, MarkerType } from "reactflow";
-import { NodeData } from "../TransitionNode";
+import { useReactFlow, Node, Edge, MarkerType } from "@xyflow/react";
+import { PlaceData, TransitionData } from "../Editor";
+
 function getNameText(el: Element) {
   const name = el.querySelector("name");
   if (!name) {
@@ -24,7 +25,7 @@ function ImportPNMLButton() {
     console.log({ pnmlDoc });
     const pnmlTransitions = [...pnmlDoc.querySelectorAll("page > transition")];
 
-    const transitions: Node<NodeData>[] = pnmlTransitions
+    const transitions: Node<TransitionData>[] = pnmlTransitions
       .map((tEl) => {
         const transitionID =
           tEl.getAttribute("id") ?? tEl.getAttribute("idref");
@@ -32,9 +33,9 @@ function ImportPNMLButton() {
           tEl.querySelector("toolspecific")?.getAttribute("activity") ===
           "$invisible$";
         const name = getNameText(tEl);
-        if (!name) {
+        if (!name) {  
           return {
-            id: transitionID ?? name,
+            id: transitionID ?? name!,
             position: { x: 0, y: 0 },
             type: "transition",
             data: { label: isSilent ? undefined : name },
@@ -46,10 +47,10 @@ function ImportPNMLButton() {
           position: { x: 0, y: 0 },
           type: "transition",
           data: { label: isSilent ? undefined : name },
-        } satisfies Node<NodeData>;
+        } satisfies Node<TransitionData>;
       })
       .filter(
-        (t): t is Node<NodeData> & { type: "transition" } => t !== undefined,
+        (t) => t !== undefined,
       );
     console.log({ transitions });
 
@@ -66,7 +67,7 @@ function ImportPNMLButton() {
           position: { x: 0, y: 0 },
           type: "place",
           data: { label: name, tokens: parseInt(pEl.querySelector("initialMarking>text")?.textContent ?? "0") },
-        } satisfies Node<NodeData>;
+        } satisfies Node<PlaceData>;
       })
       .filter((t): t is Node<any> & { type: "place" } => t !== undefined);
 

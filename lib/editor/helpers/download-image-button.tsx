@@ -1,5 +1,5 @@
-import { toPng } from "html-to-image";
-import { getNodesBounds, getViewportForBounds, useReactFlow } from "reactflow";
+import { getNodesBounds, getViewportForBounds, useReactFlow } from "@xyflow/react";
+import { toSvg } from "html-to-image";
 
 function downloadImage(dataUrl: string) {
   const a = document.createElement("a");
@@ -25,11 +25,11 @@ function DownloadButton() {
       1,
     );
 
-    void toPng(document.querySelector(".react-flow__viewport") as HTMLElement, {
+    void toSvg(document.querySelector(".react-flow__viewport") as HTMLElement, {
       width: imageWidth,
       height: imageHeight,
-      canvasHeight: imageHeight * 2,
-      canvasWidth: imageWidth * 2,
+      // canvasHeight: imageHeight * 2,
+      // canvasWidth: imageWidth * 2,
       style: {
         width: imageWidth.toString(),
         height: imageHeight.toString(),

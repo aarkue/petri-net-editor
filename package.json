@@ -23,7 +23,7 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "reactflow": "^11.10.1",
+    "@xyflow/react": "^12.5.5",
     "elkjs": "^0.8.2",
     "html-to-image": "^1.11.11"
   },

@@ -14,7 +14,7 @@ function App() {
           height: "100%",
         }}
       >
-        <Editor />
+        <Editor initialNodes={[{id: "test", type: "place", data: {label: "Hi", className: "red"}, position: {x: 0, y: 0}},{id: "test2", type: "transition", data: {label: "Hi", className: "green"}, position: {x: 0, y: 0}}]} />
       </div>
     </>
   );

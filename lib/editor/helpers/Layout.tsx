@@ -1,6 +1,6 @@
 import ELK, { type ElkNode } from "elkjs/lib/elk.bundled.js";
 import { useCallback } from "react";
-import { useReactFlow, type Node } from "reactflow";
+import { useReactFlow, type Node } from "@xyflow/react";
 const elk = new ELK();
 
 export const useLayoutedElements = () => {
@@ -75,3 +75,4 @@ export const useLayoutedElements = () => {
 
   return { getLayoutedElements };
 };
+

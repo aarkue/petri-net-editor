@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
-import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
+import { useContext, useEffect, useState } from "react";
+import { Handle, NodeProps, Position, useReactFlow, Node } from "@xyflow/react";
 import DeleteButton from "./DeleteButton";
+import { EditorPropsContext, TransitionData } from "./Editor";
 
-export type NodeData = {
-  label: string | undefined;
-  tokens?: number,
-};
 
-export default function TransitionNode({ data, id, selected }: NodeProps<NodeData>) {
+export default function TransitionNode({ data, id, selected }: NodeProps<Node<TransitionData>>) {
   const { setNodes } = useReactFlow();
+  const {readOnly} = useContext(EditorPropsContext);
   const [editMode, setEditMode] = useState(false);
   const [invisible, setInvisible] = useState(
     data.label === undefined || data.label === "",
@@ -39,9 +37,10 @@ export default function TransitionNode({ data, id, selected }: NodeProps<NodeDat
     <>
       <div
         title={data.label ?? "Invisible"}
-        className={`node transition-node ${selected ? "selected" : ""}`}
+        className={`node transition-node ${selected ? "selected" : ""} ${data.className}`}
         style={{
           backgroundColor: invisible ? "black" : undefined,
+          ...data.style
         }}
       >
         <DeleteButton nodeID={id} />
@@ -57,19 +56,19 @@ export default function TransitionNode({ data, id, selected }: NodeProps<NodeDat
           }}
         >
           <div
-            contentEditable={editMode}
+            contentEditable={readOnly !== true && editMode}
             suppressContentEditableWarning={true}
             onInput={(ev) => {
               setInvisible(ev.currentTarget.innerText.replace("\n", "") === "");
             }}
-            onKeyDownCapture={(ev) => {
+            onKeyDownCapture={readOnly ? undefined :(ev) => {
               if (ev.key === "Enter") {
                 ev.preventDefault();
                 ev.stopPropagation();
                 ev.currentTarget.blur();
               }
             }}
-            onDoubleClickCapture={(ev) => {
+            onDoubleClickCapture={readOnly ? undefined :(ev) => {
               if (editMode) {
                 applyNameEdit(ev);
               } else {

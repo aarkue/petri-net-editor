@@ -5,8 +5,8 @@ import {
   Position,
   getSmoothStepPath,
   getStraightPath,
-  useStoreApi,
-} from "reactflow";
+  useReactFlow,
+} from "@xyflow/react";
 import {
   getIntersectionCirc,
   getIntersectionRect,
@@ -14,14 +14,13 @@ import {
 import DeleteButton from "./DeleteButton";
 
 export default function CustomEdge(props: EdgeProps) {
-  const store = useStoreApi();
-  const { nodeInternals } = store.getState();
-  const targetType: "place" | "transition" = nodeInternals.get(props.target)!
+  const {getNode} = useReactFlow();
+  const source = getNode(props.source)!;
+  const target = getNode(props.target)!;
+  const targetType: "place" | "transition" = target
     .type as "place" | "transition";
-  const sourceType: "place" | "transition" = nodeInternals.get(props.source)!
+  const sourceType: "place" | "transition" = source
     .type as "place" | "transition";
-  const source = nodeInternals.get(props.source)!;
-  const target = nodeInternals.get(props.target)!;
   const { x: sourceX, y: sourceY } = source.position;
   const { x: targetX, y: targetY } = target.position;
 
@@ -99,7 +98,7 @@ export default function CustomEdge(props: EdgeProps) {
 
   return (
     <>
-      <BaseEdge path={edgePath} {...props} style={{ stroke: "black", strokeWidth: "2" }} />;
+      <BaseEdge path={edgePath} {...props} style={{ stroke: "black", strokeWidth: "2", ...props.style }} />;
       <EdgeLabelRenderer>
         <div
           style={{

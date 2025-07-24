@@ -1,15 +1,18 @@
-import { Handle, NodeProps, Position } from "reactflow";
+import { Handle, NodeProps, Position, Node } from "@xyflow/react";
 import DeleteButton from "./DeleteButton";
+import { PlaceData } from "./Editor";
 
-export default function PlaceNode({ id, selected,data }: NodeProps) {
+export default function PlaceNode({ id, selected, data }: NodeProps<Node<PlaceData>>) {
   return (
     <>
-      <div className={`node place-node ${selected ? "selected" : ""}`}>
-      {Array(data.tokens ?? 0)
-              .fill(0)
-              .map((_, i) => (
-                <div key={i} style={{width: "12px", height: "12px",  borderRadius: "100%", background: "black"}}></div>
-              ))}
+      <div className={`node place-node ${selected ? "selected" : ""} ${data.className}`} style={{
+        ...data.style
+      }}>
+        {Array(data.tokens ?? 0)
+          .fill(0)
+          .map((_, i) => (
+            <div key={i} style={{ width: "12px", height: "12px", borderRadius: "100%", background: "black" }}></div>
+          ))}
         <DeleteButton nodeID={id} />
         <div className="dragHandle" />
         <Handle

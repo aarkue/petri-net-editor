@@ -1,6 +1,5 @@
-import ReactFlow, {
-  Background,
-  BackgroundVariant,
+import {
+  ReactFlow,
   ConnectionLineType,
   Controls,
   MarkerType,
@@ -12,30 +11,35 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
   useReactFlow,
-  useStoreApi,
-} from "reactflow";
-import "reactflow/dist/style.css";
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
 import TransitionNode from "./TransitionNode";
 import CustomEdge from "./CustomEdge";
 import PlaceNode from "./PlaceNode";
-import { useRef, useCallback } from "react";
-import type { Connection, Edge, Node } from "reactflow";
+import { useRef, useCallback, createContext, useContext } from "react";
+import type { Connection, Edge, Node, ReactFlowProps } from "@xyflow/react";
 import DownloadButton from "./helpers/download-image-button";
 import ImportPNMLButton from "./helpers/import-pnml-button";
 import { useLayoutedElements } from "./helpers/Layout";
 import "./editor.css";
+import { LayoutOptions } from "elkjs";
 const nodeTypes = {
   transition: TransitionNode,
   place: PlaceNode,
 };
+
+export type TransitionData = { label?: string | undefined, className?: string, style?: React.CSSProperties };
+export type PlaceData = { label?: string | undefined, tokens?: number, className?: string, style?: React.CSSProperties  }
+
+export type ArcData = { weight?: number };
 
 const edgeTypes = {
   custom: CustomEdge,
 };
 
 function InnerEditor() {
-  const store = useStoreApi();
-  const { screenToFlowPosition } = useReactFlow();
+  const props = useContext(EditorPropsContext);
+  const { screenToFlowPosition, getNode } = useReactFlow();
   const getChildNodePosition = (event: MouseEvent) => {
     const panePosition = screenToFlowPosition({
       x: event.clientX,
@@ -44,7 +48,7 @@ function InnerEditor() {
     return panePosition;
   };
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([
+  const [nodes, setNodes, onNodesChange] = useNodesState(props.initialNodes ?? [
     {
       id: "transition@@@root",
       type: "transition",
@@ -52,7 +56,7 @@ function InnerEditor() {
       position: { x: 0, y: 0 },
     },
   ]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(props.initialEdges ?? []);
 
   const connectingNodeId = useRef<string | null>(null);
 
@@ -64,27 +68,29 @@ function InnerEditor() {
     connectingNodeId.current = nodeId;
   }, []);
 
-  const { nodeInternals } = store.getState();
 
   const onConnectEnd: OnConnectEnd = useCallback(
     (event) => {
+      if (props.readOnly) {
+        return;
+      }
       // we only want to create a new node if the connection ends on the pane
       const targetIsPane = (event.target as Element).classList.contains(
         "react-flow__pane",
       );
 
-      const parentNode = nodeInternals.get(connectingNodeId.current!)!;
+      const parentNode = getNode(connectingNodeId.current!)!;
       const childNodePosition = getChildNodePosition(event as MouseEvent);
 
       if (targetIsPane && connectingNodeId.current) {
-        const newNode: Node = {
+        const newNode: PetriNetNode = {
           id: Date.now().toString(),
           type: parentNode.type === "place" ? "transition" : "place",
           data: { label: "New Node" },
           position: childNodePosition,
         };
 
-        const newEdge: Edge<any> = {
+        const newEdge: Edge<ArcData> = {
           id: Date.now().toString(),
           source: parentNode.id,
           target: newNode.id,
@@ -100,14 +106,17 @@ function InnerEditor() {
         setEdges([...edges, newEdge]);
       }
     },
-    [getChildNodePosition],
+    [getChildNodePosition, getNode, props.readOnly],
   );
 
   const onConnect = useCallback(
     (c: Edge | Connection) => {
+      if (props.readOnly) {
+        return;
+      }
       const { source, target, sourceHandle, targetHandle } = c;
-      const sourceNode = nodeInternals.get(source!)!;
-      const targetNode = nodeInternals.get(target!)!;
+      const sourceNode = getNode(source!)!;
+      const targetNode = getNode(target!)!;
       if (sourceNode.type === targetNode.type) {
         return;
       }
@@ -137,12 +146,12 @@ function InnerEditor() {
         });
       });
     },
-    [setEdges, nodeInternals],
+    [setEdges, getNode],
   );
 
   const nodeOrigin: NodeOrigin = [0.5, 0.5];
   return (
-    <ReactFlow className="petri-net-editor"
+    <ReactFlow className={`petri-net-editor ${props.readOnly ? "readonly" : ""}`}
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
@@ -151,22 +160,27 @@ function InnerEditor() {
       onEdgesChange={onEdgesChange}
       nodeOrigin={nodeOrigin}
       onConnectStart={onConnectStart}
+      nodesConnectable={props.readOnly ? false : undefined}
       onConnectEnd={onConnectEnd}
-      connectionLineStyle={{strokeWidth: 1.5}}
+      connectionLineStyle={{ strokeWidth: 1.5 }}
       onConnect={onConnect}
       connectionLineType={ConnectionLineType.Straight}
       snapToGrid={true}
       snapGrid={[10, 10]}
       maxZoom={10}
       minZoom={0.33}
+      onBeforeDelete={props.readOnly ? async () => {
+        return false
+      } : undefined}
       proOptions={{ hideAttribution: true }}
+      {...props.editorProps}
     >
-      <Background
+      {/* <Background
         color="#ccc"
         variant={BackgroundVariant.Cross}
         gap={[50, 50]}
         offset={2}
-      />
+      /> */}
       <Controls showInteractive={false} />
       <Panel
         position="top-right"
@@ -176,8 +190,7 @@ function InnerEditor() {
         <ImportPNMLButton />
         <button
           onClick={() => {
-            getLayoutedElements(
-              { "elk.algorithm": "org.eclipse.elk.layered" },
+            getLayoutedElements(props.layoutOptions ?? {},
               true,
             );
           }}
@@ -188,11 +201,15 @@ function InnerEditor() {
     </ReactFlow>
   );
 }
-
-export default function Editor() {
+export type PetriNetNode =  ((Node<TransitionData> & { type: "transition" }) | (Node<PlaceData> & { type: "place" }));
+export type EditorProps = { readOnly?: boolean, initialNodes?: PetriNetNode[], initialEdges?: Edge<ArcData>[], layoutOptions?: LayoutOptions, editorProps?: ReactFlowProps<PetriNetNode, Edge<ArcData>> }
+export const EditorPropsContext = createContext<EditorProps>({});
+export default function Editor(props: EditorProps) {
   return (
-    <ReactFlowProvider>
-      <InnerEditor />
+    <ReactFlowProvider >
+      <EditorPropsContext.Provider value={props}>
+        <InnerEditor />
+      </EditorPropsContext.Provider>
     </ReactFlowProvider>
   );
 }

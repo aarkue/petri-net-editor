@@ -1,4 +1,4 @@
-import { useReactFlow } from "reactflow";
+import { useReactFlow } from "@xyflow/react";
 type DeleteButtonProps = { nodeID: string } | { edgeID: string };
 export default function DeleteButton(props: DeleteButtonProps) {
   const { setNodes, setEdges } = useReactFlow();
